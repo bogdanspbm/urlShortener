@@ -15,7 +15,7 @@ type urlData interface {
 	loadURL(key string) (url string, ok bool)
 }
 
-type getURL struct {
+type GetURL struct {
 	URL string `json:"longurl"`
 }
 
@@ -25,7 +25,7 @@ func InitData(db urlData) {
 
 func HandleGet(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		
+
 		promReceivedLinkCount.Inc()
 
 		key := r.URL.Path[1:]
@@ -47,7 +47,7 @@ func HandlePing(w http.ResponseWriter, r *http.Request) {
 }
 
 func createResp(w http.ResponseWriter, key string, url string) {
-	jsonResp := urlDB{Key: key, URL: url}
+	jsonResp := UrlDB{Key: key, URL: url}
 	resp, err := json.Marshal(jsonResp)
 	if err != nil {
 		http.Error(w, "JSON is invalid", 400)
@@ -60,13 +60,13 @@ func createResp(w http.ResponseWriter, key string, url string) {
 
 func HandlePut(w http.ResponseWriter, r *http.Request) {
 
-	if r.Method == http.MethodPut {
+	if r.Method == http.MethodPut || r.Method == http.MethodPost {
 
 		promRegisteredLinkCount.Inc()
 
 		defer r.Body.Close()
 		decoder := json.NewDecoder(r.Body)
-		var jsonURL getURL
+		var jsonURL GetURL
 		decoder.Decode(&jsonURL)
 
 		url := jsonURL.URL

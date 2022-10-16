@@ -38,7 +38,7 @@ type DBConnect struct {
 	db *sqlx.DB
 }
 
-type urlDB struct {
+type UrlDB struct {
 	Key string `db:"tinyurl"`
 	URL string `db:"longurl"`
 }
@@ -69,14 +69,14 @@ func (dbClient *DBConnect) store(key string, url string) {
 }
 
 func (dbClient *DBConnect) loadKey(url string) (key string, ok bool) {
-	el := urlDB{}
+	el := UrlDB{}
 	dbClient.db.Get(&el, "SELECT tinyurl, longurl FROM urls WHERE longurl=$1", url)
 	key, ok = el.Key, el.Key != ""
 	return
 }
 
 func (dbClient *DBConnect) loadURL(key string) (url string, ok bool) {
-	el := urlDB{}
+	el := UrlDB{}
 	dbClient.db.Get(&el, "SELECT tinyurl, longurl FROM urls WHERE tinyurl=$1", key)
 	url, ok = el.URL, el.URL != ""
 	return
