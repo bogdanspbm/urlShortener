@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"os"
@@ -12,8 +13,56 @@ import (
 	_ "urlShortener/utils"
 )
 
-func getAllShortURLs() {
+func getAllShortURLs() []utils.UrlDB {
+	b, err := ioutil.ReadFile("pass.conf")
+	if err != nil {
+		fmt.Print(err)
+		res := []utils.UrlDB{}
+		return res
+	}
 
+	// convert bytes to string
+	pass := string(b)
+
+	server := &utils.SSH{
+		Ip:   "217.25.88.166",
+		User: "root",
+		Port: 22,
+		Cert: pass,
+	}
+
+	err = server.Connect(utils.CERT_PASSWORD)
+	if err != nil {
+		fmt.Println(err)
+		res := []utils.UrlDB{}
+		return res
+	}
+
+	defer server.Close()
+
+	utils.InitConection(*server)
+
+	client := &utils.DBConnect{
+		Ip:   "localhost",
+		User: "postgres",
+		Name: "url_shortener",
+		Cert: pass}
+
+	err = client.Open()
+
+	if err != nil {
+		fmt.Println(err)
+		res := []utils.UrlDB{}
+		return res
+	}
+
+	defer client.Close()
+
+	utils.InitData(client)
+
+	urls := client.GetURLS()
+
+	return urls
 }
 
 func getLinks() []string {
@@ -39,6 +88,7 @@ func getLinks() []string {
 func main() {
 
 	links := getLinks()
+	shortURLs := getAllShortURLs()
 
 	for i := 0; i < 10000; i++ {
 		link := links[rand.Intn(len(links))]
@@ -56,7 +106,8 @@ func main() {
 	}
 
 	for i := 0; i < 100000; i++ {
-		_, err := http.Get("http://127.0.0.1:8000/2qNfHK5")
+		shortKey := shortURLs[rand.Intn(len(shortURLs))].Key
+		_, err := http.Get("http://127.0.0.1:8000/" + shortKey)
 		if err != nil {
 			fmt.Println("Could not do get request", err)
 			return

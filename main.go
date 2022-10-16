@@ -54,10 +54,10 @@ func main() {
 
 	defer client.Close()
 
+	utils.InitData(client)
+
 	utils.RegPrometheus()
 	http.Handle("/metrics", promhttp.Handler())
-
-	utils.InitData(client)
 
 	http.HandleFunc("/", utils.HandleGet)
 	http.HandleFunc("/ping", utils.HandlePing)

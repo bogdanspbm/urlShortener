@@ -64,6 +64,29 @@ func (dbClient *DBConnect) Close() {
 	dbClient.db.Close()
 }
 
+func (dbClient *DBConnect) GetURLS() []UrlDB {
+	res := []UrlDB{}
+	rows, err := dbClient.db.Query("SELECT tinyurl, longurl FROM urls")
+	if err != nil {
+		return res
+	}
+
+	for rows.Next() {
+		var key, url string
+		err = rows.Scan(&key, &url)
+
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		el := UrlDB{Key: key, URL: url}
+
+		res = append(res, el)
+	}
+
+	return res
+}
+
 func (dbClient *DBConnect) store(key string, url string) {
 	dbClient.db.MustExec("INSERT INTO urls (tinyurl, longurl) VALUES ($1, $2)", key, url)
 }
