@@ -88,9 +88,8 @@ func getLinks() []string {
 func main() {
 
 	links := getLinks()
-	shortURLs := getAllShortURLs()
 
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < 10; i++ {
 		link := links[rand.Intn(len(links))]
 		url := utils.GetURL{URL: link}
 		jsonResp, _ := json.Marshal(url)
@@ -105,7 +104,9 @@ func main() {
 		}
 	}
 
-	for i := 0; i < 100000; i++ {
+	shortURLs := getAllShortURLs()
+
+	for i := 0; i < 100; i++ {
 		shortKey := shortURLs[rand.Intn(len(shortURLs))].Key
 		_, err := http.Get("http://127.0.0.1:8000/" + shortKey)
 		if err != nil {

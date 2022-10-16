@@ -27,6 +27,7 @@ func HandleGet(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 
 		promReceivedLinkCount.Inc()
+		PrometheusPush()
 
 		key := r.URL.Path[1:]
 		url, ok := data.loadURL(key)
@@ -63,6 +64,7 @@ func HandlePut(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPut || r.Method == http.MethodPost {
 
 		promRegisteredLinkCount.Inc()
+		PrometheusPush()
 
 		defer r.Body.Close()
 		decoder := json.NewDecoder(r.Body)
