@@ -54,6 +54,15 @@
       <filePath value="$PROJECT_DIR$/utils/database.go" />
       <method v="2" />
     </configuration>
+    <configuration name="go build hload.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="urlShortener" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <package value="urlShortener" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/hload.go" />
+      <method v="2" />
+    </configuration>
     <configuration name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="urlShortener" />
       <working_directory value="$PROJECT_DIR$" />
@@ -84,6 +93,7 @@
     <recent_temporary>
       <list>
         <item itemvalue="Go Build.go build main.go" />
+        <item itemvalue="Go Build.go build hload.go" />
         <item itemvalue="Go Build.go build database.go" />
         <item itemvalue="Go Build.go build requests.go" />
         <item itemvalue="Go Build.go build urlShortener" />
@@ -113,7 +123,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
           <url>file://$PROJECT_DIR$/utils/database.go</url>
-          <line>70</line>
+          <line>71</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
       </breakpoints>

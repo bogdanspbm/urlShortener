@@ -25,6 +25,9 @@ func InitData(db urlData) {
 
 func HandleGet(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
+		
+		promReceivedLinkCount.Inc()
+
 		key := r.URL.Path[1:]
 		url, ok := data.loadURL(key)
 		if !ok {

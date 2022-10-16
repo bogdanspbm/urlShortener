@@ -14,9 +14,9 @@ import (
 func main() {
 
 	b, err := ioutil.ReadFile("pass.conf")
-	// can file be opened?
 	if err != nil {
 		fmt.Print(err)
+		return
 	}
 
 	// convert bytes to string
@@ -29,7 +29,12 @@ func main() {
 		Cert: pass,
 	}
 
-	server.Connect(utils.CERT_PASSWORD)
+	err = server.Connect(utils.CERT_PASSWORD)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	defer server.Close()
 
 	utils.InitConection(*server)
@@ -40,7 +45,13 @@ func main() {
 		Name: "url_shortener",
 		Cert: pass}
 
-	client.Open()
+	err = client.Open()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	defer client.Close()
 
 	utils.RegPrometheus()

@@ -47,16 +47,17 @@ func InitConection(con SSH) {
 	sshcon = con
 }
 
-func (dbClient *DBConnect) Open() {
+func (dbClient *DBConnect) Open() error {
 	sql.Register("postgres+ssh", &ViaSSHDialer{sshcon.client})
 
 	db, err := sqlx.Open("postgres+ssh", fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", dbClient.User, dbClient.Cert, dbClient.Ip, dbClient.Name))
 
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 
 	dbClient.db = db
+	return nil
 }
 
 func (dbClient *DBConnect) Close() {

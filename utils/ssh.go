@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
@@ -37,7 +38,7 @@ func (sshClient *SSH) readPublicKeyFile(file string) ssh.AuthMethod {
 	return ssh.PublicKeys(key)
 }
 
-func (sshClient *SSH) Connect(mode int) {
+func (sshClient *SSH) Connect(mode int) error {
 
 	var ssh_config *ssh.ClientConfig
 	var auth []ssh.AuthMethod
@@ -46,8 +47,8 @@ func (sshClient *SSH) Connect(mode int) {
 	} else if mode == CERT_PUBLIC_KEY_FILE {
 		auth = []ssh.AuthMethod{sshClient.readPublicKeyFile(sshClient.Cert)}
 	} else {
-		log.Println("does not support mode: ", mode)
-		return
+		log.Println("Does not support mode: ", mode)
+		return errors.New("Does not support mode")
 	}
 
 	ssh_config = &ssh.ClientConfig{
@@ -62,18 +63,20 @@ func (sshClient *SSH) Connect(mode int) {
 	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", sshClient.Ip, sshClient.Port), ssh_config)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return err
 	}
 
 	session, err := client.NewSession()
 	if err != nil {
 		fmt.Println(err)
 		client.Close()
-		return
+		return err
 	}
 
 	sshClient.session = session
 	sshClient.client = client
+
+	return nil
 }
 
 func (sshClient *SSH) RunCmd(cmd string) {
