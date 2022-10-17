@@ -106,9 +106,17 @@ func main() {
 
 	shortURLs := getAllShortURLs()
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 100000; i++ {
 		shortKey := shortURLs[rand.Intn(len(shortURLs))].Key
 		_, err := http.Get("http://127.0.0.1:8000/" + shortKey)
+		if err != nil {
+			fmt.Println("Could not do get request", err)
+			return
+		}
+	}
+
+	for i := 0; i < 100000; i++ {
+		_, err := http.Get("http://127.0.0.1:8000/" + utils.RandKey())
 		if err != nil {
 			fmt.Println("Could not do get request", err)
 			return

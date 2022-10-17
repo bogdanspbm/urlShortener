@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 )
 
 var data urlData
@@ -26,8 +27,9 @@ func InitData(db urlData) {
 func HandleGet(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 
+		start := time.Now()
+
 		promReceivedLinkCount.Inc()
-		PrometheusPush()
 
 		key := r.URL.Path[1:]
 		url, ok := data.loadURL(key)
@@ -40,6 +42,12 @@ func HandleGet(w http.ResponseWriter, r *http.Request) {
 
 		http.Redirect(w, r, "https://"+url, 301)
 
+		duration := time.Since(start)
+
+		requestProcessingTimeSummaryMs.Observe(duration.Seconds())
+		requestProcessingTimeHistogramMs.Observe(duration.Seconds())
+
+		PrometheusPush()
 	}
 }
 
@@ -63,8 +71,9 @@ func HandlePut(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodPut || r.Method == http.MethodPost {
 
+		start := time.Now()
+
 		promRegisteredLinkCount.Inc()
-		PrometheusPush()
 
 		defer r.Body.Close()
 		decoder := json.NewDecoder(r.Body)
@@ -85,10 +94,17 @@ func HandlePut(w http.ResponseWriter, r *http.Request) {
 
 		key, ok := "", true
 		for ok {
-			key = randKey()
+			key = RandKey()
 			_, ok = data.loadURL(key)
 		}
 		data.store(key, url)
 		createResp(w, key, url)
+
+		duration := time.Since(start)
+
+		requestProcessingTimeSummaryMs.Observe(duration.Seconds())
+		requestProcessingTimeHistogramMs.Observe(duration.Seconds())
+
+		PrometheusPush()
 	}
 }

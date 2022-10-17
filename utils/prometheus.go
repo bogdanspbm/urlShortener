@@ -10,19 +10,31 @@ var promRegisteredLinkCount = prometheus.NewCounter(
 	prometheus.CounterOpts{
 		Name: "put_requests",
 		Help: "Количество зарегистрированных ссылок",
-	},
-)
+	})
+
+var requestProcessingTimeSummaryMs = prometheus.NewSummary(
+	prometheus.SummaryOpts{
+		Name:       "request_processing_time_summary_ms",
+		Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+	})
+
+var requestProcessingTimeHistogramMs = prometheus.NewHistogram(
+	prometheus.HistogramOpts{
+		Name:    "request_processing_time_histogram_ms",
+		Buckets: prometheus.LinearBuckets(0, 10, 20),
+	})
 
 var promReceivedLinkCount = prometheus.NewCounter(
 	prometheus.CounterOpts{
 		Name: "get_requests",
 		Help: "Количество запросов ссылок",
-	},
-)
+	})
 
 func RegPrometheus() {
 	prometheus.MustRegister(promReceivedLinkCount)
 	prometheus.MustRegister(promRegisteredLinkCount)
+	prometheus.MustRegister(requestProcessingTimeSummaryMs)
+	prometheus.MustRegister(requestProcessingTimeHistogramMs)
 }
 
 func PrometheusPush() {
