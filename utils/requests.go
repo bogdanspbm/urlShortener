@@ -84,11 +84,26 @@ func HandlePut(w http.ResponseWriter, r *http.Request) {
 
 		if url == "" {
 			w.WriteHeader(http.StatusOK)
+			duration := time.Since(start)
+
+			requestProcessingTimeSummaryMs.Observe(duration.Seconds())
+			requestProcessingTimeHistogramMs.Observe(duration.Seconds())
+
+			PrometheusPush()
+
 			return
 		}
 
 		if key, ok := data.loadKey(url); ok {
 			createResp(w, key, url)
+
+			duration := time.Since(start)
+
+			requestProcessingTimeSummaryMs.Observe(duration.Seconds())
+			requestProcessingTimeHistogramMs.Observe(duration.Seconds())
+
+			PrometheusPush()
+
 			return
 		}
 

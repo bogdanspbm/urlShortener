@@ -9,6 +9,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"time"
 	"urlShortener/utils"
 	_ "urlShortener/utils"
 )
@@ -89,7 +90,11 @@ func main() {
 
 	links := getLinks()
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 10000; i++ {
+
+		r := rand.Intn(100)
+		time.Sleep(time.Duration(r) * time.Millisecond)
+
 		link := links[rand.Intn(len(links))]
 		url := utils.GetURL{URL: link}
 		jsonResp, _ := json.Marshal(url)
@@ -107,8 +112,17 @@ func main() {
 	shortURLs := getAllShortURLs()
 
 	for i := 0; i < 100000; i++ {
+
+		r := rand.Intn(100)
+		time.Sleep(time.Duration(r) * time.Millisecond)
+
 		shortKey := shortURLs[rand.Intn(len(shortURLs))].Key
-		_, err := http.Get("http://127.0.0.1:8000/" + shortKey)
+		resp, err := http.Get("http://127.0.0.1:8000/" + shortKey)
+
+		if resp != nil {
+			resp.Body.Close()
+		}
+
 		if err != nil {
 			fmt.Println("Could not do get request", err)
 			return
@@ -116,6 +130,9 @@ func main() {
 	}
 
 	for i := 0; i < 100000; i++ {
+		r := rand.Intn(100)
+		time.Sleep(time.Duration(r) * time.Millisecond)
+
 		_, err := http.Get("http://127.0.0.1:8000/" + utils.RandKey())
 		if err != nil {
 			fmt.Println("Could not do get request", err)
