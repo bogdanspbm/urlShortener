@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="dataSourceStorageLocal" created-in="GO-223.8214.59">
+    <data-source name="Reznik" uuid="ac2275c3-1c06-4dbc-9fc5-cb882cc4845c">
+      <database-info product="PostgreSQL" version="14.5 (Ubuntu 14.5-0ubuntu0.22.04.1)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.5.0" dbms="POSTGRES" exact-version="14.5" exact-driver-version="42.5">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>postgres</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node negative="1">
+            <node kind="database" qname="@">
+              <node kind="schema" qname="@" />
+            </node>
+            <node kind="database" qname="bmadzhuga">
+              <node kind="schema" qname="public" />
+            </node>
+            <node kind="database">
+              <name qname="postgres" />
+              <name qname="sreznick" />
+              <node kind="schema" negative="1" />
+            </node>
+          </node>
+        </introspection-scope>
+      </schema-mapping>
+      <ssh-properties>
+        <enabled>true</enabled>
+        <ssh-config-id>84bfb49f-7df4-402a-896b-daabd0a5f33c</ssh-config-id>
+      </ssh-properties>
+    </data-source>
+    <data-source name="MKN" uuid="2d685adb-f893-4f78-9f2f-6e0736aeba3e">
+      <database-info product="PostgreSQL" version="10.22 (Ubuntu 10.22-0ubuntu0.18.04.1)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.5.0" dbms="POSTGRES" exact-version="10.22" exact-driver-version="42.5">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>postgres</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node negative="1">
+            <node kind="database" qname="@">
+              <node kind="schema" qname="@" />
+            </node>
+            <node kind="database" qname="url_shortener">
+              <node kind="schema" qname="public" />
+            </node>
+          </node>
+        </introspection-scope>
+      </schema-mapping>
+      <ssh-properties>
+        <enabled>true</enabled>
+        <ssh-config-id>eaa4b515-0e55-47bf-8597-9ba69c270f10</ssh-config-id>
+      </ssh-properties>
+    </data-source>
+  </component>
+</project>

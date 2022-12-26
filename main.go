@@ -5,7 +5,9 @@ import (
 	_ "github.com/lib/pq"
 	_ "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"golang.org/x/crypto/ssh"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"urlShortener/utils"
 	_ "urlShortener/utils"
@@ -19,17 +21,28 @@ func main() {
 		return
 	}
 
+	key, err := ioutil.ReadFile("C:\\Users\\crewd\\.ssh\\id_ed25519")
+	if err != nil {
+		log.Fatalf("Unable to read private key: %v", err)
+	}
+
+	signer, err := ssh.ParsePrivateKey(key)
+	if err != nil {
+		log.Fatalf("Unable to parse private key: %v", err)
+	}
+
 	// convert bytes to string
 	pass := string(b)
 
 	server := &utils.SSH{
-		Ip:   "217.25.88.166",
-		User: "root",
-		Port: 22,
-		Cert: pass,
+		Ip:     "158.160.9.8",
+		User:   "bmadzhuga",
+		Port:   22,
+		Cert:   pass,
+		Signer: signer,
 	}
 
-	err = server.Connect(utils.CERT_PASSWORD)
+	err = server.Connect(utils.CERT_PUBLIC_KEY_FILE)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -42,7 +55,7 @@ func main() {
 	client := &utils.DBConnect{
 		Ip:   "localhost",
 		User: "postgres",
-		Name: "url_shortener",
+		Name: "bmadzhuga",
 		Cert: pass}
 
 	err = client.Open()

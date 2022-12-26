@@ -52,7 +52,7 @@ func HandleGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandlePing(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Ping")
+	fmt.Println("PING")
 }
 
 func createResp(w http.ResponseWriter, key string, url string) {
@@ -70,6 +70,8 @@ func createResp(w http.ResponseWriter, key string, url string) {
 func HandlePut(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodPut || r.Method == http.MethodPost {
+
+		fmt.Printf("PUT")
 
 		start := time.Now()
 
