@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"urlShortener/utils"
 	_ "urlShortener/utils"
+
+	_ "github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
 func main() {
@@ -59,6 +61,17 @@ func main() {
 		Cert: pass}
 
 	err = client.Open()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	kafkaClient := &utils.Kafka{
+		Topic: "bmadzhuga-events",
+	}
+
+	err = kafkaClient.Connect()
 
 	if err != nil {
 		fmt.Println(err)
