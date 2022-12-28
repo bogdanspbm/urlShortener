@@ -23,7 +23,7 @@ func main() {
 		return
 	}
 
-	key, err := ioutil.ReadFile("C:\\Users\\crewd\\.ssh\\id_ed25519")
+	key, err := ioutil.ReadFile("//users//bogdan//.ssh//id_ed25519")
 	if err != nil {
 		log.Fatalf("Unable to read private key: %v", err)
 	}
