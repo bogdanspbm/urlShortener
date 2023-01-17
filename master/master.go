@@ -86,8 +86,6 @@ func main() {
 	utils.Client = kafkaClient
 
 	defer client.Close()
-	defer kafkaClient.Consumer.Close()
-	defer kafkaClient.Producer.Close()
 
 	go listenTopic(kafkaClient)
 
@@ -119,7 +117,12 @@ func listenTopic(client *utils.Kafka) {
 	for {
 		msg, err := client.Consumer.ReadMessage(-1)
 		if err == nil {
-			request := strings.Split(string(msg.Value), ":")
+			request := strings.Split(string(msg.Value), "::")
+
+			if len(request) != 3 {
+				continue
+			}
+
 			key := request[1]
 			topic := request[0]
 
@@ -142,7 +145,7 @@ func listenTopic(client *utils.Kafka) {
 
 			err = kafkaClient.Send(key, url, ok)
 
-			fmt.Printf("Success sent answer to %v as %v:%v", topic, key, url)
+			fmt.Printf("Success sent answer to %v as %v:%v\n", topic, key, url)
 
 			if err != nil {
 				panic(err)

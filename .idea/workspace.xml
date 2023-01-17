@@ -6,7 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="1746fdf0-638d-4b30-a9d9-7b678c17edbc" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/master/master.go" beforeDir="false" afterPath="$PROJECT_DIR$/master/master.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/kafka.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/kafka.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/requests.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/requests.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,7 +65,7 @@
       <recent name="$PROJECT_DIR$/client" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Build.go build client.go">
+  <component name="RunManager" selected="Go Build.go build master.go">
     <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
       <module name="urlShortener" />
       <working_directory value="$PROJECT_DIR$" />
@@ -126,8 +128,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Build.go build client.go" />
         <item itemvalue="Go Build.go build master.go" />
+        <item itemvalue="Go Build.go build client.go" />
         <item itemvalue="Go Build.go build urlShortener/client" />
         <item itemvalue="Go Build.go build urlShortener" />
         <item itemvalue="Go Build.go build main.go" />
@@ -153,6 +155,25 @@
     <settings-migrated>true</settings-migrated>
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/master/master.go</url>
+          <line>117</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/master/master.go</url>
+          <line>114</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/master/master.go</url>
+          <line>118</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
     <watches-manager>
       <configuration name="GoApplicationRunConfiguration">
         <watch expression="*(*&quot;urlShortener/utils.UrlDB&quot;)(824637710464)" />

@@ -64,7 +64,11 @@ func askMasterForURL(key string) (string, bool) {
 		return "", false
 	}
 
-	responseArray := strings.Split(response, ":")
+	responseArray := strings.Split(response, "::")
+
+	if len(responseArray) != 3 {
+		return "", false
+	}
 
 	status := responseArray[2]
 	url := responseArray[1]

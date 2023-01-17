@@ -31,7 +31,7 @@ func (client *Kafka) Connect() error {
 	kafkaConsumer, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers":  broker,
 		"group.id":           group,
-		"auto.offset.reset":  "earliest",
+		"auto.offset.reset":  "latest",
 		"enable.auto.commit": false,
 	})
 
@@ -60,7 +60,7 @@ func (client *Kafka) Send(longUrl string, tinyUrl string, status bool) error {
 
 	var err = client.Producer.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &client.Topic, Partition: kafka.PartitionAny},
-		Value:          []byte(longUrl + ":" + tinyUrl + ":" + statusString)},
+		Value:          []byte(longUrl + "::" + tinyUrl + "::" + statusString)},
 		nil,
 	)
 
