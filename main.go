@@ -80,6 +80,8 @@ func main() {
 
 	defer client.Close()
 
+	testSendAndReceive(kafkaClient)
+
 	utils.InitData(client)
 
 	utils.RegPrometheus()
@@ -93,6 +95,21 @@ func main() {
 
 	if err := http.ListenAndServe(":8000", nil); err != nil {
 		panic("error!")
+	}
+
+}
+
+func testSendAndReceive(client *utils.Kafka) {
+	err := client.Send("short", "long")
+
+	if err != nil {
+		panic(err)
+	}
+
+	err = client.Enable()
+
+	if err != nil {
+		panic(err)
 	}
 
 }
