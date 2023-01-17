@@ -9,7 +9,8 @@
       <change beforePath="$PROJECT_DIR$/client/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/client/client.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/master/master.go" beforeDir="false" afterPath="$PROJECT_DIR$/master/master.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/redis.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/redis.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/kafka.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/kafka.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/requests.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/requests.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

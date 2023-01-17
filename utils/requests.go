@@ -8,9 +8,11 @@ import (
 	"time"
 )
 
-var data urlData
+var ClientBD urlData
 
-var Client *Kafka
+var ClientKafka *Kafka
+
+var ClientRedis *Redis
 
 type urlData interface {
 	store(key string, url string)
@@ -27,12 +29,8 @@ type PingResponse struct {
 	Type  string `json:"type"`
 }
 
-func InitData(db urlData) {
-	data = db
-}
-
 func GetURLFromKey(key string) (string, bool) {
-	url, ok := data.loadURL(key)
+	url, ok := ClientBD.loadURL(key)
 	if !ok {
 		return "", ok
 	}
@@ -52,13 +50,13 @@ func askMasterForURL(key string) (string, bool) {
 		return "", false
 	}
 
-	err = kafkaMaster.Send(Client.Topic, key, true)
+	err = kafkaMaster.Send(ClientKafka.Topic, key, true)
 
 	if err != nil {
 		return "", false
 	}
 
-	response, err := Client.readFromTopic()
+	response, err := ClientKafka.ReadFromTopic()
 
 	if err != nil {
 		return "", false
@@ -98,7 +96,7 @@ func HandleGet(w http.ResponseWriter, r *http.Request) {
 	var url string
 	var ok bool
 
-	if Client.Type == "master" {
+	if ClientKafka.Type == "master" {
 		url, ok = GetURLFromKey(key)
 	} else {
 		url, ok = askMasterForURL(key)
@@ -124,7 +122,7 @@ func HandleGet(w http.ResponseWriter, r *http.Request) {
 func HandlePing(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	jsonResp := PingResponse{Topic: Client.Topic, Type: Client.Type}
+	jsonResp := PingResponse{Topic: ClientKafka.Topic, Type: ClientKafka.Type}
 	resp, err := json.Marshal(jsonResp)
 
 	if err != nil {
@@ -178,7 +176,7 @@ func HandlePut(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if key, ok := data.loadKey(url); ok {
+	if key, ok := ClientBD.loadKey(url); ok {
 		createResp(w, key, url)
 
 		duration := time.Since(start)
@@ -194,9 +192,9 @@ func HandlePut(w http.ResponseWriter, r *http.Request) {
 	key, ok := "", true
 	for ok {
 		key = RandKey()
-		_, ok = data.loadURL(key)
+		_, ok = ClientBD.loadURL(key)
 	}
-	data.store(key, url)
+	ClientBD.store(key, url)
 	createResp(w, key, url)
 
 	duration := time.Since(start)

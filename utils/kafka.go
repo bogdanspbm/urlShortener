@@ -73,7 +73,7 @@ func (client *Kafka) Send(longUrl string, tinyUrl string, status bool) error {
 	return nil
 }
 
-func (client *Kafka) readFromTopic() (string, error) {
+func (client *Kafka) ReadFromTopic() (string, error) {
 	if client.Consumer == nil {
 		return "", errors.New("Empty consumer")
 	}

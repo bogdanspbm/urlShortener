@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	redis := utils.Redis{Cluster: "158.160.9.8:26793"}
+	redis := utils.Redis{Cluster: "158.160.9.8:26379"}
 	err := redis.Connect()
 
 	if err != nil {

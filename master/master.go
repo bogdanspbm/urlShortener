@@ -78,9 +78,9 @@ func main() {
 		panic(err)
 	}
 
-	utils.Client = kafkaClient
+	utils.ClientKafka = kafkaClient
 
-	redis := utils.Redis{Cluster: "158.160.19.212:26793"}
+	redis := utils.Redis{Cluster: "158.160.19.212:26379"}
 	err = redis.Connect()
 
 	if err != nil {
@@ -93,7 +93,7 @@ func main() {
 
 	go listenTopic(kafkaClient)
 
-	utils.InitData(client)
+	utils.ClientBD = client
 
 	utils.RegPrometheus()
 	http.Handle("/metrics", promhttp.Handler())
