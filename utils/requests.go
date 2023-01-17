@@ -31,6 +31,56 @@ func InitData(db urlData) {
 	data = db
 }
 
+func GetURLFromKey(key string) (string, bool) {
+	url, ok := data.loadURL(key)
+	if !ok {
+		return "", ok
+	}
+
+	return url, ok
+}
+
+func askMasterForURL(key string) (string, bool) {
+	kafkaMaster := Kafka{
+		Topic: "bmadzhuga-events",
+		Type:  "master",
+	}
+
+	err := kafkaMaster.Connect()
+
+	if err != nil {
+		return "", false
+	}
+
+	err = kafkaMaster.Send(Client.Topic, key, true)
+
+	if err != nil {
+		return "", false
+	}
+
+	response, err := Client.readFromTopic()
+
+	if err != nil {
+		return "", false
+	}
+
+	responseArray := strings.Split(response, ":")
+
+	status := responseArray[2]
+	url := responseArray[1]
+	keyOut := responseArray[0]
+
+	if status == "failed" {
+		return "", false
+	}
+
+	if key != keyOut {
+		return "", false
+	}
+
+	return url, true
+}
+
 func HandleGet(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 
@@ -39,7 +89,16 @@ func HandleGet(w http.ResponseWriter, r *http.Request) {
 		promReceivedLinkCount.Inc()
 
 		key := r.URL.Path[1:]
-		url, ok := data.loadURL(key)
+
+		var url string
+		var ok bool
+
+		if Client.Type == "master" {
+			url, ok = GetURLFromKey(key)
+		} else {
+			url, ok = askMasterForURL(key)
+		}
+
 		if !ok {
 			http.Error(w, "key not found", http.StatusNotFound)
 			return

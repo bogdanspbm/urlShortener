@@ -35,6 +35,12 @@ func (client *Kafka) Connect() error {
 		"enable.auto.commit": false,
 	})
 
+	err = client.Consumer.SubscribeTopics([]string{client.Topic}, nil)
+
+	if err != nil {
+		return err
+	}
+
 	if err != nil {
 		return err
 	}
@@ -44,11 +50,17 @@ func (client *Kafka) Connect() error {
 	return nil
 }
 
-func (client *Kafka) Send(longUrl string, tinyUrl string) error {
+func (client *Kafka) Send(longUrl string, tinyUrl string, status bool) error {
+
+	statusString := "success"
+
+	if !status {
+		statusString = "failed"
+	}
 
 	var err = client.Producer.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &client.Topic, Partition: kafka.PartitionAny},
-		Value:          []byte(longUrl + ":" + tinyUrl)},
+		Value:          []byte(longUrl + ":" + tinyUrl + ":" + statusString)},
 		nil,
 	)
 
@@ -64,12 +76,6 @@ func (client *Kafka) Send(longUrl string, tinyUrl string) error {
 func (client *Kafka) readFromTopic() (string, error) {
 	if client.Consumer == nil {
 		return "", errors.New("Empty consumer")
-	}
-
-	err := client.Consumer.SubscribeTopics([]string{client.Topic}, nil)
-
-	if err != nil {
-		return "", err
 	}
 
 	fmt.Println("Start reading from topic: %v", client.Topic)

@@ -10,11 +10,14 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 	"urlShortener/utils"
 	_ "urlShortener/utils"
 
 	_ "github.com/confluentinc/confluent-kafka-go/kafka"
 )
+
+var clients = map[string]bool{"bmadzhuga-client-a": true, "bmadzhuga-client-b": true}
 
 func main() {
 
@@ -86,7 +89,7 @@ func main() {
 	defer kafkaClient.Consumer.Close()
 	defer kafkaClient.Producer.Close()
 
-	listenTopic(kafkaClient)
+	go listenTopic(kafkaClient)
 
 	utils.InitData(client)
 
@@ -106,14 +109,9 @@ func main() {
 }
 
 func listenTopic(client *utils.Kafka) {
+
 	if client.Consumer == nil {
 		panic(errors.New("Empty consumer"))
-	}
-
-	err := client.Consumer.SubscribeTopics([]string{client.Topic}, nil)
-
-	if err != nil {
-		panic(err)
 	}
 
 	fmt.Println("Start reading from topic: ", client.Topic)
@@ -121,7 +119,34 @@ func listenTopic(client *utils.Kafka) {
 	for {
 		msg, err := client.Consumer.ReadMessage(-1)
 		if err == nil {
-			fmt.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+			request := strings.Split(string(msg.Value), ":")
+			key := request[1]
+			topic := request[0]
+
+			if !clients[topic] {
+				continue
+			}
+
+			url, ok := utils.GetURLFromKey(key)
+
+			kafkaClient := &utils.Kafka{
+				Topic: topic,
+				Type:  "client",
+			}
+
+			err = kafkaClient.Connect()
+
+			if err != nil {
+				panic(err)
+			}
+
+			err = kafkaClient.Send(key, url, ok)
+
+			fmt.Printf("Success sent answer to %v as %v:%v", topic, key, url)
+
+			if err != nil {
+				panic(err)
+			}
 		} else {
 			fmt.Printf("Consumer error: %v (%v)\n", err, msg)
 			break
