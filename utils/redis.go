@@ -44,6 +44,20 @@ func (client *Redis) Push(value string) error {
 	return nil
 }
 
+func (client *Redis) Put(field string, val string) error {
+	if client.Client == nil {
+		return errors.New("Empty redis client")
+	}
+
+	err := client.Client.HSet(client.Client.Context(), key, field, val)
+
+	if err != nil {
+		return errors.New("Can't put key pair")
+	}
+
+	return nil
+}
+
 func (client *Redis) Pull() (string, error) {
 	if client.Client == nil {
 		return "", errors.New("Empty redis client")
