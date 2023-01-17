@@ -80,7 +80,7 @@ func main() {
 
 	utils.Client = kafkaClient
 
-	redis := utils.Redis{Cluster: "158.160.19.212"}
+	redis := utils.Redis{Cluster: "158.160.19.212:26793"}
 	err = redis.Connect()
 
 	if err != nil {

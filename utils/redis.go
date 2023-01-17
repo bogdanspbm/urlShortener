@@ -59,5 +59,5 @@ func (client *Redis) Pull() (string, error) {
 }
 
 func (client *Redis) Close() {
-	client.Close()
+	client.Client.Close()
 }
