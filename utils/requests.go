@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -38,6 +39,30 @@ func GetURLFromKey(key string) (string, bool) {
 	}
 
 	return url, ok
+}
+
+func incrementKey(key string) error {
+	result, err := ClientRedis.GetMapWithKey("metrics")
+
+	if err != nil {
+		return err
+	}
+
+	val, ok := result[key]
+
+	if ok {
+		intVal, err := strconv.Atoi(val)
+		if err != nil {
+			return err
+		}
+		val = strconv.Itoa(intVal + 1)
+	} else {
+		val = "1"
+	}
+
+	err = ClientRedis.PutWithKey("metrics", key, val)
+
+	return err
 }
 
 func askMasterForURL(key string) (string, bool) {
@@ -116,6 +141,9 @@ func HandleGet(w http.ResponseWriter, r *http.Request) {
 		url, ok = GetURLFromKey(key)
 	} else {
 		url, ok = askMasterForURL(key)
+		if ok {
+			incrementKey(key)
+		}
 	}
 
 	if !ok {
