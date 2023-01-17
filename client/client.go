@@ -128,6 +128,11 @@ func fillRedisFromTopic(redis *utils.Redis, kafka *utils.Kafka) {
 		}
 
 		fmt.Printf("New url arrived: %v::%v\n", key, val)
-		redis.Push(fmt.Sprintf("%s::%s", key, url))
+		err = redis.Put(key, url)
+
+		if err != nil {
+			run = false
+			panic(err)
+		}
 	}
 }
