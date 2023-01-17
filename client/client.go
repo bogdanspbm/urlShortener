@@ -80,6 +80,8 @@ func main() {
 	redis := &utils.Redis{Cluster: "158.160.9.8:26379"}
 	err = redis.Connect()
 
+	utils.ClientRedis = redis
+
 	if err != nil {
 		panic(err)
 	}

@@ -52,7 +52,7 @@ func (client *Redis) Put(field string, val string) error {
 	err := client.Client.HSet(client.Client.Context(), key, field, val)
 
 	if err != nil {
-		return errors.New("Can't put key pair")
+		return err.Err()
 	}
 
 	return nil
@@ -73,6 +73,10 @@ func (client *Redis) Pull() (string, error) {
 }
 
 func (client *Redis) GetMap() (map[string]string, error) {
+
+	if client == nil || client.Client == nil {
+		return nil, errors.New("Empty Redis Client")
+	}
 	return client.Client.HGetAll(client.Client.Context(), key).Result()
 }
 

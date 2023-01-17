@@ -20,6 +20,8 @@ type urlData interface {
 	loadURL(key string) (url string, ok bool)
 }
 
+var lastMap map[string]string
+
 type GetURL struct {
 	URL string `json:"longurl"`
 }
@@ -39,6 +41,14 @@ func GetURLFromKey(key string) (string, bool) {
 }
 
 func askMasterForURL(key string) (string, bool) {
+	if lastMap != nil {
+		val, ok := lastMap[key]
+
+		if ok {
+			return val, true
+		}
+	}
+
 	kafkaMaster := Kafka{
 		Topic: "bmadzhuga-events",
 		Type:  "master",
@@ -69,6 +79,8 @@ func getURLFromRedis(key string, timeout int) (string, bool) {
 		if err != nil {
 			return "", false
 		}
+
+		lastMap = result
 
 		val, ok := result[key]
 
