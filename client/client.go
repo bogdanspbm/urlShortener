@@ -69,7 +69,7 @@ func main() {
 
 	kafkaClient := &utils.Kafka{
 		Topic: "bmadzhuga-client-a",
-		Type:  "master",
+		Type:  "client",
 	}
 
 	err = kafkaClient.Connect()
@@ -79,11 +79,11 @@ func main() {
 		return
 	}
 
+	utils.Client = kafkaClient
+
 	defer client.Close()
 	defer kafkaClient.Consumer.Close()
 	defer kafkaClient.Producer.Close()
-
-	listenTopic(kafkaClient)
 
 	utils.InitData(client)
 
@@ -92,12 +92,11 @@ func main() {
 
 	http.HandleFunc("/", utils.HandleGet)
 	http.HandleFunc("/ping", utils.HandlePing)
-	http.HandleFunc("/create", utils.HandlePut)
 
 	fmt.Println("Server started")
 
-	if err := http.ListenAndServe(":8000", nil); err != nil {
-		panic("error!")
+	if err := http.ListenAndServe(":8081", nil); err != nil {
+		panic(err)
 	}
 
 }

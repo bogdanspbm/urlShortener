@@ -14,6 +14,7 @@ const (
 
 type Kafka struct {
 	Topic    string
+	Type     string
 	Producer *kafka.Producer
 	Consumer *kafka.Consumer
 }
@@ -60,15 +61,15 @@ func (client *Kafka) Send(longUrl string, tinyUrl string) error {
 	return nil
 }
 
-func (client *Kafka) Enable() error {
+func (client *Kafka) readFromTopic() (string, error) {
 	if client.Consumer == nil {
-		return errors.New("Empty consumer")
+		return "", errors.New("Empty consumer")
 	}
 
 	err := client.Consumer.SubscribeTopics([]string{client.Topic}, nil)
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	fmt.Println("Start reading from topic: %v", client.Topic)
@@ -76,12 +77,11 @@ func (client *Kafka) Enable() error {
 	for {
 		msg, err := client.Consumer.ReadMessage(-1)
 		if err == nil {
-			fmt.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+			return string(msg.Value), nil
 		} else {
-			fmt.Printf("Consumer error: %v (%v)\n", err, msg)
-			break
+			return "", err
 		}
 	}
 
-	return errors.New("Error while reading")
+	return "", errors.New("Error while reading")
 }

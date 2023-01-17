@@ -10,6 +10,8 @@ import (
 
 var data urlData
 
+var Client *Kafka
+
 type urlData interface {
 	store(key string, url string)
 	loadKey(url string) (key string, ok bool)
@@ -18,6 +20,11 @@ type urlData interface {
 
 type GetURL struct {
 	URL string `json:"longurl"`
+}
+
+type PingResponse struct {
+	Topic string `json:"topic"`
+	Type  string `json:"type"`
 }
 
 func InitData(db urlData) {
@@ -52,7 +59,17 @@ func HandleGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandlePing(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("PING")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	jsonResp := PingResponse{Topic: Client.Topic, Type: Client.Type}
+	resp, err := json.Marshal(jsonResp)
+
+	if err != nil {
+		http.Error(w, "JSON is invalid", 400)
+		return
+	}
+
+	w.Write(resp)
 }
 
 func createResp(w http.ResponseWriter, key string, url string) {

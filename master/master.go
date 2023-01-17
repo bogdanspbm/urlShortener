@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	_ "github.com/lib/pq"
 	_ "github.com/prometheus/client_golang/prometheus"
@@ -68,7 +69,7 @@ func main() {
 	}
 
 	kafkaClient := &utils.Kafka{
-		Topic: "bmadzhuga-client-a",
+		Topic: "bmadzhuga-events",
 		Type:  "master",
 	}
 
@@ -78,6 +79,8 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+
+	utils.Client = kafkaClient
 
 	defer client.Close()
 	defer kafkaClient.Consumer.Close()
@@ -96,8 +99,33 @@ func main() {
 
 	fmt.Println("Server started")
 
-	if err := http.ListenAndServe(":8000", nil); err != nil {
-		panic("error!")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		panic(err)
+	}
+
+}
+
+func listenTopic(client *utils.Kafka) {
+	if client.Consumer == nil {
+		panic(errors.New("Empty consumer"))
+	}
+
+	err := client.Consumer.SubscribeTopics([]string{client.Topic}, nil)
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Start reading from topic: ", client.Topic)
+
+	for {
+		msg, err := client.Consumer.ReadMessage(-1)
+		if err == nil {
+			fmt.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+		} else {
+			fmt.Printf("Consumer error: %v (%v)\n", err, msg)
+			break
+		}
 	}
 
 }
