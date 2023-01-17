@@ -103,6 +103,7 @@ func main() {
 	defer kafkaMasterClient.Close()
 
 	go listenTopic(kafkaMasterClient)
+	go listenMetrics(kafkaMetricClient, client)
 
 	utils.ClientBD = client
 
