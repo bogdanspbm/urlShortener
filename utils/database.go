@@ -98,6 +98,10 @@ func (dbClient *DBConnect) loadKey(url string) (key string, ok bool) {
 	return
 }
 
+func (dbClient *DBConnect) SetCounter(key string, value string) {
+	dbClient.db.MustExec("UPDATE urls SET counter = $1 WHERE tinyurl = $2", value, key)
+}
+
 func (dbClient *DBConnect) loadURL(key string) (url string, ok bool) {
 	el := UrlDB{}
 	dbClient.db.Get(&el, "SELECT tinyurl, longurl FROM urls WHERE tinyurl=$1", key)

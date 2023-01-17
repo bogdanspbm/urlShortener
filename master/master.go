@@ -67,18 +67,29 @@ func main() {
 		panic(err)
 	}
 
-	kafkaClient := &utils.Kafka{
+	kafkaMasterClient := &utils.Kafka{
 		Topic: "bmadzhuga-events",
 		Type:  "master",
 	}
 
-	err = kafkaClient.Connect()
+	err = kafkaMasterClient.Connect()
 
 	if err != nil {
 		panic(err)
 	}
 
-	utils.ClientKafka = kafkaClient
+	utils.ClientKafka = kafkaMasterClient
+
+	kafkaMetricClient := &utils.Kafka{
+		Topic: "bmadzhuga-metrics",
+		Type:  "master",
+	}
+
+	err = kafkaMetricClient.Connect()
+
+	if err != nil {
+		panic(err)
+	}
 
 	redis := utils.Redis{Cluster: "158.160.19.212:26379"}
 	err = redis.Connect()
@@ -89,9 +100,9 @@ func main() {
 
 	defer redis.Close()
 	defer client.Close()
-	defer kafkaClient.Close()
+	defer kafkaMasterClient.Close()
 
-	go listenTopic(kafkaClient)
+	go listenTopic(kafkaMasterClient)
 
 	utils.ClientBD = client
 
@@ -110,6 +121,33 @@ func main() {
 
 }
 
+// Прослушиваем очередь обновленя метрик
+func listenMetrics(client *utils.Kafka, database *utils.DBConnect) {
+	if client.Consumer == nil {
+		panic(errors.New("Empty consumer"))
+	}
+
+	for {
+		msg, err := client.Consumer.ReadMessage(-1)
+		if err != nil {
+			panic(err)
+			break
+		}
+		request := strings.Split(string(msg.Value), "::")
+
+		if len(request) != 3 {
+			continue
+		}
+
+		val := request[1]
+		key := request[0]
+
+		database.SetCounter(key, val)
+	}
+}
+
+// Прослушиваем очередь запросов от клиентов.
+// Если пришел запрос на полную ссылку отправляем
 func listenTopic(client *utils.Kafka) {
 
 	if client.Consumer == nil {

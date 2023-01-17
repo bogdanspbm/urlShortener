@@ -48,6 +48,8 @@ func incrementKey(key string) error {
 		return err
 	}
 
+	shouldSend := false
+
 	val, ok := result[key]
 
 	if ok {
@@ -55,6 +57,11 @@ func incrementKey(key string) error {
 		if err != nil {
 			return err
 		}
+
+		if intVal%100 == 0 {
+			shouldSend = true
+		}
+
 		val = strconv.Itoa(intVal + 1)
 	} else {
 		val = "1"
@@ -62,9 +69,33 @@ func incrementKey(key string) error {
 
 	err = ClientRedis.PutWithKey("metrics", key, val)
 
+	if shouldSend {
+		err = sendMetricUpdate(key, val)
+	}
+
 	return err
 }
 
+func sendMetricUpdate(key string, val string) error {
+	kafkaClient := Kafka{
+		Topic: "bmadzhuga-metrics",
+		Type:  "master",
+	}
+
+	err := kafkaClient.Connect()
+
+	if err != nil {
+		return err
+	}
+
+	err = kafkaClient.Send(key, val, true)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 func askMasterForURL(key string) (string, bool) {
 	if lastMap != nil {
 		val, ok := lastMap[key]
