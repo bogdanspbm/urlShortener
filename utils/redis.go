@@ -72,6 +72,10 @@ func (client *Redis) Pull() (string, error) {
 	return res, nil
 }
 
+func (client *Redis) GetMap() (map[string]string, error) {
+	return client.Client.HGetAll(client.Client.Context(), key).Result()
+}
+
 func (client *Redis) Close() {
 	client.Client.Close()
 }

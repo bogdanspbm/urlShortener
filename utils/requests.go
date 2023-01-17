@@ -56,31 +56,35 @@ func askMasterForURL(key string) (string, bool) {
 		return "", false
 	}
 
-	response, err := ClientKafka.ReadFromTopic()
+	url, ok := getURLFromRedis(key, 100)
 
-	if err != nil {
-		return "", false
+	return url, ok
+}
+
+func getURLFromRedis(key string, timeout int) (string, bool) {
+	run := true
+	counter := 0
+	for run {
+		result, err := ClientRedis.GetMap()
+		if err != nil {
+			return "", false
+		}
+
+		val, ok := result[key]
+
+		if ok {
+			return val, true
+		}
+
+		counter++
+
+		time.Sleep(time.Millisecond * 100)
+
+		if counter >= timeout {
+			run = false
+		}
 	}
-
-	responseArray := strings.Split(response, "::")
-
-	if len(responseArray) != 3 {
-		return "", false
-	}
-
-	status := responseArray[2]
-	url := responseArray[1]
-	keyOut := responseArray[0]
-
-	if status == "failed" {
-		return "", false
-	}
-
-	if key != keyOut {
-		return "", false
-	}
-
-	return url, true
+	return "", false
 }
 
 func HandleGet(w http.ResponseWriter, r *http.Request) {

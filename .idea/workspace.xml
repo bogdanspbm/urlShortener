@@ -6,7 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="1746fdf0-638d-4b30-a9d9-7b678c17edbc" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/client/client.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/redis.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/redis.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/requests.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/requests.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,7 +64,7 @@
       <recent name="$PROJECT_DIR$/client" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Build.go build main.go">
+  <component name="RunManager" selected="Go Build.go build client.go">
     <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
       <module name="urlShortener" />
       <working_directory value="$PROJECT_DIR$" />
@@ -126,8 +127,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Build.go build main.go" />
         <item itemvalue="Go Build.go build client.go" />
+        <item itemvalue="Go Build.go build main.go" />
         <item itemvalue="Go Build.go build master.go" />
         <item itemvalue="Go Build.go build urlShortener/client" />
         <item itemvalue="Go Build.go build urlShortener" />
