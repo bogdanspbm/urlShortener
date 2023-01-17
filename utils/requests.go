@@ -86,39 +86,39 @@ func askMasterForURL(key string) (string, bool) {
 }
 
 func HandleGet(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-
-		start := time.Now()
-
-		promReceivedLinkCount.Inc()
-
-		key := r.URL.Path[1:]
-
-		var url string
-		var ok bool
-
-		if Client.Type == "master" {
-			url, ok = GetURLFromKey(key)
-		} else {
-			url, ok = askMasterForURL(key)
-		}
-
-		if !ok {
-			http.Error(w, "key not found", http.StatusNotFound)
-			return
-		}
-		url = strings.TrimPrefix(url, "https://")
-		url = strings.TrimPrefix(url, "http://")
-
-		http.Redirect(w, r, "https://"+url, 301)
-
-		duration := time.Since(start)
-
-		requestProcessingTimeSummaryMs.Observe(duration.Seconds())
-		requestProcessingTimeHistogramMs.Observe(duration.Seconds())
-
-		PrometheusPush()
+	if r.Method != http.MethodGet {
+		return
 	}
+	start := time.Now()
+
+	promReceivedLinkCount.Inc()
+
+	key := r.URL.Path[1:]
+
+	var url string
+	var ok bool
+
+	if Client.Type == "master" {
+		url, ok = GetURLFromKey(key)
+	} else {
+		url, ok = askMasterForURL(key)
+	}
+
+	if !ok {
+		http.Error(w, "key not found", http.StatusNotFound)
+		return
+	}
+	url = strings.TrimPrefix(url, "https://")
+	url = strings.TrimPrefix(url, "http://")
+
+	http.Redirect(w, r, "https://"+url, 301)
+
+	duration := time.Since(start)
+
+	requestProcessingTimeSummaryMs.Observe(duration.Seconds())
+	requestProcessingTimeHistogramMs.Observe(duration.Seconds())
+
+	PrometheusPush()
 }
 
 func HandlePing(w http.ResponseWriter, r *http.Request) {
@@ -149,52 +149,36 @@ func createResp(w http.ResponseWriter, key string, url string) {
 
 func HandlePut(w http.ResponseWriter, r *http.Request) {
 
-	if r.Method == http.MethodPut || r.Method == http.MethodPost {
+	if r.Method != http.MethodPut && r.Method != http.MethodPost {
+		return
+	}
 
-		fmt.Printf("PUT")
+	fmt.Printf("PUT")
 
-		start := time.Now()
+	start := time.Now()
 
-		promRegisteredLinkCount.Inc()
+	promRegisteredLinkCount.Inc()
 
-		defer r.Body.Close()
-		decoder := json.NewDecoder(r.Body)
-		var jsonURL GetURL
-		decoder.Decode(&jsonURL)
+	defer r.Body.Close()
+	decoder := json.NewDecoder(r.Body)
+	var jsonURL GetURL
+	decoder.Decode(&jsonURL)
 
-		url := jsonURL.URL
+	url := jsonURL.URL
 
-		if url == "" {
-			w.WriteHeader(http.StatusOK)
-			duration := time.Since(start)
+	if url == "" {
+		w.WriteHeader(http.StatusOK)
+		duration := time.Since(start)
 
-			requestProcessingTimeSummaryMs.Observe(duration.Seconds())
-			requestProcessingTimeHistogramMs.Observe(duration.Seconds())
+		requestProcessingTimeSummaryMs.Observe(duration.Seconds())
+		requestProcessingTimeHistogramMs.Observe(duration.Seconds())
 
-			PrometheusPush()
+		PrometheusPush()
 
-			return
-		}
+		return
+	}
 
-		if key, ok := data.loadKey(url); ok {
-			createResp(w, key, url)
-
-			duration := time.Since(start)
-
-			requestProcessingTimeSummaryMs.Observe(duration.Seconds())
-			requestProcessingTimeHistogramMs.Observe(duration.Seconds())
-
-			PrometheusPush()
-
-			return
-		}
-
-		key, ok := "", true
-		for ok {
-			key = RandKey()
-			_, ok = data.loadURL(key)
-		}
-		data.store(key, url)
+	if key, ok := data.loadKey(url); ok {
 		createResp(w, key, url)
 
 		duration := time.Since(start)
@@ -203,5 +187,22 @@ func HandlePut(w http.ResponseWriter, r *http.Request) {
 		requestProcessingTimeHistogramMs.Observe(duration.Seconds())
 
 		PrometheusPush()
+
+		return
 	}
+
+	key, ok := "", true
+	for ok {
+		key = RandKey()
+		_, ok = data.loadURL(key)
+	}
+	data.store(key, url)
+	createResp(w, key, url)
+
+	duration := time.Since(start)
+
+	requestProcessingTimeSummaryMs.Observe(duration.Seconds())
+	requestProcessingTimeHistogramMs.Observe(duration.Seconds())
+
+	PrometheusPush()
 }

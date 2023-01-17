@@ -8,7 +8,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 	"urlShortener/utils"
@@ -23,18 +22,17 @@ func main() {
 
 	b, err := ioutil.ReadFile("pass.conf")
 	if err != nil {
-		fmt.Print(err)
-		return
+		panic(err)
 	}
 
 	key, err := ioutil.ReadFile("//users//bogdan//.ssh//id_ed25519")
 	if err != nil {
-		log.Fatalf("Unable to read private key: %v", err)
+		panic(err)
 	}
 
 	signer, err := ssh.ParsePrivateKey(key)
 	if err != nil {
-		log.Fatalf("Unable to parse private key: %v", err)
+		panic(err)
 	}
 
 	// convert bytes to string
@@ -50,8 +48,7 @@ func main() {
 
 	err = server.Connect(utils.CERT_PUBLIC_KEY_FILE)
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
 
 	defer server.Close()
@@ -67,8 +64,7 @@ func main() {
 	err = client.Open()
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
 
 	kafkaClient := &utils.Kafka{
@@ -79,13 +75,21 @@ func main() {
 	err = kafkaClient.Connect()
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
 
 	utils.Client = kafkaClient
 
+	redis := utils.Redis{Cluster: "158.160.19.212"}
+	err = redis.Connect()
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer redis.Close()
 	defer client.Close()
+	defer kafkaClient.Close()
 
 	go listenTopic(kafkaClient)
 
@@ -116,44 +120,44 @@ func listenTopic(client *utils.Kafka) {
 
 	for {
 		msg, err := client.Consumer.ReadMessage(-1)
-		if err == nil {
-			request := strings.Split(string(msg.Value), "::")
-
-			if len(request) != 3 {
-				continue
-			}
-
-			key := request[1]
-			topic := request[0]
-
-			if !clients[topic] {
-				continue
-			}
-
-			url, ok := utils.GetURLFromKey(key)
-
-			kafkaClient := &utils.Kafka{
-				Topic: topic,
-				Type:  "client",
-			}
-
-			err = kafkaClient.Connect()
-
-			if err != nil {
-				panic(err)
-			}
-
-			err = kafkaClient.Send(key, url, ok)
-
-			fmt.Printf("Success sent answer to %v as %v:%v\n", topic, key, url)
-
-			if err != nil {
-				panic(err)
-			}
-		} else {
-			fmt.Printf("Consumer error: %v (%v)\n", err, msg)
+		if err != nil {
+			panic(err)
 			break
 		}
+		request := strings.Split(string(msg.Value), "::")
+
+		if len(request) != 3 {
+			continue
+		}
+
+		key := request[1]
+		topic := request[0]
+
+		if !clients[topic] {
+			continue
+		}
+
+		url, ok := utils.GetURLFromKey(key)
+
+		kafkaClient := &utils.Kafka{
+			Topic: topic,
+			Type:  "client",
+		}
+
+		err = kafkaClient.Connect()
+
+		if err != nil {
+			panic(err)
+		}
+
+		err = kafkaClient.Send(key, url, ok)
+
+		fmt.Printf("Success sent answer to %v as %v:%v\n", topic, key, url)
+
+		if err != nil {
+			panic(err)
+		}
+
 	}
 
 }

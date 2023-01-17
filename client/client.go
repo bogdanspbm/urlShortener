@@ -7,7 +7,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"urlShortener/utils"
 	_ "urlShortener/utils"
@@ -19,18 +18,17 @@ func main() {
 
 	b, err := ioutil.ReadFile("pass.conf")
 	if err != nil {
-		fmt.Print(err)
-		return
+		panic(err)
 	}
 
 	key, err := ioutil.ReadFile("//users//bogdan//.ssh//id_ed25519")
 	if err != nil {
-		log.Fatalf("Unable to read private key: %v", err)
+		panic(err)
 	}
 
 	signer, err := ssh.ParsePrivateKey(key)
 	if err != nil {
-		log.Fatalf("Unable to parse private key: %v", err)
+		panic(err)
 	}
 
 	// convert bytes to string
@@ -46,8 +44,7 @@ func main() {
 
 	err = server.Connect(utils.CERT_PUBLIC_KEY_FILE)
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
 
 	defer server.Close()
@@ -63,8 +60,7 @@ func main() {
 	err = client.Open()
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
 
 	kafkaClient := &utils.Kafka{
@@ -75,15 +71,21 @@ func main() {
 	err = kafkaClient.Connect()
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
 
 	utils.Client = kafkaClient
 
+	redis := utils.Redis{Cluster: "158.160.9.8"}
+	err = redis.Connect()
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer redis.Close()
 	defer client.Close()
-	defer kafkaClient.Consumer.Close()
-	defer kafkaClient.Producer.Close()
+	defer kafkaClient.Close()
 
 	utils.InitData(client)
 

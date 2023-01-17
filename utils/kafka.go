@@ -91,3 +91,8 @@ func (client *Kafka) readFromTopic() (string, error) {
 
 	return "", errors.New("Error while reading")
 }
+
+func (client *Kafka) Close() {
+	client.Producer.Close()
+	client.Consumer.Close()
+}
