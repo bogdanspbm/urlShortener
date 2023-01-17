@@ -35,11 +35,11 @@ func (client *Kafka) Connect() error {
 		"enable.auto.commit": false,
 	})
 
-	err = client.Consumer.SubscribeTopics([]string{client.Topic}, nil)
-
 	if err != nil {
 		return err
 	}
+
+	err = kafkaConsumer.Subscribe(client.Topic, nil)
 
 	if err != nil {
 		return err
